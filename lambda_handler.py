@@ -1,5 +1,6 @@
 import random
 import uuid
+import boto3
 from datetime import datetime
 def lambda_handler(event, context):
     if 'messages' in event:
@@ -23,27 +24,11 @@ def lambda_handler(event, context):
     return {"messages":responds}
 
 def respoendTo(s):
-    if "Hello" in s:
-        return "Hi there, how can I help?"
-    elif "Hi" in s:
-        return "What a nice day!"
-    elif s == "?":
-        return "What's your problem, I am here to help!"
-    elif "?" in s:
-        return "I see your problem. But I don't know either. I will send it to one of my manager."
-    elif "name" in s:
-        return "My name is Robot! Nice to meet you!"
-    randomlist = [
-        "Emmm...",
-        "I don't quite understand",
-        "Well, that sounds good.",
-        "OMG, I feel sorry to hear that.",
-        "I like your idea!",
-        "What a pity",
-        "I feel honored to talk to you.",
-        "There must be something wrong",
-        "I am glad to hear that"
-    ]
-    l = len(randomlist)
-    pick = random.randint(0,l-1)
-    return randomlist[pick]
+    client = boto3.client('lex-runtime', region_name='us-east-1')
+    response = client.post_text(
+        botName = 'RestraurantAdvisor',
+        botAlias = 'emailVersion',
+        userId = 'LexChat',
+        inputText = s
+        )
+    return response["message"]
